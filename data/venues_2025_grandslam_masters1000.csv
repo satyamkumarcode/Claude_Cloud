@@ -1,0 +1,14 @@
+venue_id,tourney_id,tourney_name,venue_name,city,country_name,ioc_code,source_url
+1,2025-580,Australian Open,Melbourne Park,Melbourne,Australia,AUS,https://en.wikipedia.org/wiki/2025_Australian_Open
+2,2025-404,Indian Wells Masters,Indian Wells Tennis Garden,Indian Wells,United States,USA,https://en.wikipedia.org/wiki/2025_BNP_Paribas_Open
+3,2025-403,Miami Masters,Hard Rock Stadium,Miami Gardens,United States,USA,https://en.wikipedia.org/wiki/2025_Miami_Open
+4,2025-410,Monte Carlo Masters,Monte-Carlo Country Club,Roquebrune-Cap-Martin,France,FRA,https://en.wikipedia.org/wiki/2025_Monte-Carlo_Masters
+5,2025-1536,Madrid Masters,Park Manzanares,Madrid,Spain,ESP,https://en.wikipedia.org/wiki/2025_Mutua_Madrid_Open
+6,2025-416,Rome Masters,Foro Italico,Rome,Italy,ITA,https://en.wikipedia.org/wiki/2025_Italian_Open
+7,2025-520,Roland Garros,Stade Roland Garros,Paris,France,FRA,https://en.wikipedia.org/wiki/2025_French_Open
+8,2025-540,Wimbledon,All England Lawn Tennis and Croquet Club,London,United Kingdom,GBR,https://en.wikipedia.org/wiki/2025_Wimbledon_Championships
+9,2025-421,Canada Masters,Sobeys Stadium,Toronto,Canada,CAN,https://en.wikipedia.org/wiki/2025_National_Bank_Open
+10,2025-422,Cincinnati Masters,Lindner Family Tennis Center,Mason,United States,USA,https://en.wikipedia.org/wiki/2025_Cincinnati_Open
+11,2025-560,US Open,USTA Billie Jean King National Tennis Center,New York City,United States,USA,https://en.wikipedia.org/wiki/2025_US_Open_(tennis)
+12,2025-5014,Shanghai,Qizhong Forest Sports City Arena,Shanghai,China,CHN,https://en.wikipedia.org/wiki/2025_Rolex_Shanghai_Masters
+13,2025-352,Paris Masters,Paris La Défense Arena,Nanterre,France,FRA,https://en.wikipedia.org/wiki/2025_Rolex_Paris_Masters
