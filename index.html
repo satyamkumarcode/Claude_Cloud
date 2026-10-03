@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy Birthday!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#1a0b2e; --bg2:#3a1054; --bg3:#7a1f5c;
+    --gold:#ffd27a; --pink:#ff6fa8; --text:#fff5fb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Poppins',sans-serif;color:var(--text);
+    background:linear-gradient(160deg,var(--bg1),var(--bg2) 55%,var(--bg3));
+    background-attachment:fixed;overflow-x:hidden;min-height:100vh;
+  }
+  canvas#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+  .floaters{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .floaters span{position:absolute;bottom:-40px;font-size:22px;opacity:.7;animation:rise linear infinite}
+  @keyframes rise{to{transform:translateY(-115vh) rotate(40deg);opacity:0}}
+
+  section{position:relative;z-index:1;padding:80px 20px;max-width:1100px;margin:auto}
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px}
+  .hero .small{letter-spacing:.35em;text-transform:uppercase;font-size:.85rem;color:var(--gold)}
+  .hero h1{font-family:'Dancing Script',cursive;font-size:clamp(3.2rem,12vw,8rem);line-height:1.05;
+    background:linear-gradient(90deg,var(--gold),var(--pink),var(--gold));background-size:200%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
+  @keyframes shine{to{background-position:200% 0}}
+  .hero .name{font-family:'Dancing Script',cursive;font-size:clamp(2rem,7vw,4rem);color:#fff}
+  .hero p.sub{max-width:520px;font-weight:300;opacity:.9}
+  .cake{font-size:5rem;animation:bounce 2s ease-in-out infinite}
+  @keyframes bounce{50%{transform:translateY(-14px)}}
+  .btn{
+    border:0;cursor:pointer;padding:14px 34px;border-radius:999px;font:600 1rem 'Poppins',sans-serif;
+    color:#2a0a3d;background:linear-gradient(90deg,var(--gold),#ffb3d1);
+    box-shadow:0 8px 30px rgba(255,111,168,.45);transition:transform .2s,box-shadow .2s}
+  .btn:hover{transform:translateY(-3px) scale(1.04)}
+  .scroll-hint{position:absolute;bottom:26px;font-size:.8rem;opacity:.6;animation:bounce 2s infinite}
+
+  h2{font-family:'Dancing Script',cursive;font-size:clamp(2.2rem,6vw,3.6rem);text-align:center;color:var(--gold);margin-bottom:10px}
+  .lead{text-align:center;font-weight:300;opacity:.85;margin-bottom:40px}
+
+  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px}
+  .card{
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);
+    border-radius:20px;padding:12px 12px 16px;cursor:pointer;
+    transition:transform .35s,box-shadow .35s;opacity:0;transform:translateY(40px) rotate(var(--r,0deg))}
+  .card.show{opacity:1;transform:translateY(0) rotate(var(--r,0deg))}
+  .card:hover{transform:translateY(-8px) rotate(0deg) scale(1.03);box-shadow:0 18px 50px rgba(255,111,168,.35)}
+  .card img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:14px;display:block}
+  .card.wide{grid-column:span 2}
+  .card.wide img{aspect-ratio:4/3}
+  .card p{margin-top:12px;text-align:center;font-family:'Dancing Script',cursive;font-size:1.4rem}
+  @media(max-width:560px){.card.wide{grid-column:span 1}}
+
+  .letter{
+    background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);border-radius:24px;
+    padding:clamp(24px,5vw,56px);max-width:760px;margin:auto;text-align:center;backdrop-filter:blur(10px);
+    line-height:1.9;font-weight:300;font-size:1.05rem}
+  .letter .sign{font-family:'Dancing Script',cursive;font-size:2rem;color:var(--pink);margin-top:20px}
+  .wishes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:40px}
+  .wish{background:rgba(255,255,255,.07);border-radius:16px;padding:22px 16px;text-align:center;font-size:.95rem}
+  .wish b{display:block;font-size:2rem;margin-bottom:6px}
+
+  .final{text-align:center;padding-bottom:120px}
+  .final .big{font-family:'Dancing Script',cursive;font-size:clamp(2.4rem,8vw,5rem);margin:16px 0 28px}
+
+  .lightbox{position:fixed;inset:0;background:rgba(10,0,20,.92);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:100%;max-height:90vh;border-radius:14px;box-shadow:0 0 60px rgba(255,111,168,.4)}
+  .lightbox button{position:absolute;top:18px;right:24px;background:none;border:0;color:#fff;font-size:2.4rem;cursor:pointer}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="floaters" id="floaters"></div>
+
+<section class="hero">
+  <div class="small">Today is all about you</div>
+  <div class="cake">🎂</div>
+  <h1>Happy Birthday</h1>
+  <div class="name" id="who">My Dearest</div>
+  <p class="sub" id="typed"></p>
+  <button class="btn" id="party">🎉 Let's Celebrate</button>
+  <div class="scroll-hint">scroll down ↓</div>
+</section>
+
+<section id="memories">
+  <h2>Our Beautiful Memories</h2>
+  <p class="lead">A few moments that make me smile — tap any photo to see it big.</p>
+  <div class="gallery" id="gallery"></div>
+</section>
+
+<section id="wishes">
+  <h2>A Little Note For You</h2>
+  <div class="letter">
+    <p id="letterText">
+      On your special day, I just want you to know how much joy you bring into every room you walk into —
+      whether it's a late-night chat in the kitchen, a long bus ride with a suitcase and a big grin,
+      or a quiet evening out together. Your smile makes ordinary days feel magical.<br><br>
+      May this year bring you everything you wish for: success, adventure, good health, and endless laughter.
+      Thank you for being you. I'm so proud of you and so lucky to celebrate this day with you. ❤️
+    </p>
+    <div class="sign">With all my love</div>
+  </div>
+  <div class="wishes">
+    <div class="wish"><b>🌟</b>May all your dreams come true</div>
+    <div class="wish"><b>✈️</b>Many more adventures together</div>
+    <div class="wish"><b>😄</b>A year full of laughter</div>
+    <div class="wish"><b>💖</b>Endless love &amp; happiness</div>
+  </div>
+</section>
+
+<section class="final">
+  <div style="font-size:4rem">🎈🎁🎈</div>
+  <div class="big">Happy Birthday!</div>
+  <button class="btn" id="again">🎊 One more surprise</button>
+</section>
+
+<div class="lightbox" id="lightbox"><button aria-label="Close">×</button><img alt=""></div>
+
+<script>
+/* ===== EDIT THESE ===== */
+const CONFIG = {
+  name: "My Dearest",   // her name — or open the page with ?name=Priya
+  message: "Wishing you a day as bright and beautiful as your smile. 💫",
+  photos: [
+    {src:"images/photo1.jpg", caption:"Always smiling", wide:false},
+    {src:"images/photo2.jpg", caption:"Adventure mode on", wide:false},
+    {src:"images/photo3.jpg", caption:"Together", wide:false},
+    {src:"images/photo4.jpg", caption:"Our little moments", wide:false},
+    {src:"images/photo5.jpg", caption:"Great company, great night", wide:true}
+  ]
+};
+/* ====================== */
+
+const qs = new URLSearchParams(location.search);
+document.getElementById('who').textContent = qs.get('name') || CONFIG.name;
+
+// typewriter
+(function(){
+  const el = document.getElementById('typed'); let i = 0;
+  (function tick(){ el.textContent = CONFIG.message.slice(0, i++); if(i <= CONFIG.message.length) setTimeout(tick, 55); })();
+})();
+
+// floating emojis
+const fl = document.getElementById('floaters');
+['💖','✨','🎈','🌸','🎉','💫'].forEach(function(e){
+  for(let k=0;k<4;k++){
+    const s=document.createElement('span'); s.textContent=e;
+    s.style.left=Math.random()*100+'%';
+    s.style.animationDuration=(9+Math.random()*10)+'s';
+    s.style.animationDelay=(-Math.random()*15)+'s';
+    s.style.fontSize=(16+Math.random()*20)+'px';
+    fl.appendChild(s);
+  }
+});
+
+// gallery
+const gal = document.getElementById('gallery');
+CONFIG.photos.forEach(function(p, i){
+  const c = document.createElement('div');
+  c.className = 'card' + (p.wide ? ' wide' : '');
+  c.style.setProperty('--r', ((i%2?1:-1) * (1 + Math.random()*1.5)).toFixed(1) + 'deg');
+  c.innerHTML = '<img loading="lazy" src="'+p.src+'" alt="'+p.caption+'"><p>'+p.caption+'</p>';
+  c.onclick = function(){ openBox(p.src); };
+  gal.appendChild(c);
+});
+const io = new IntersectionObserver(function(es){
+  es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('show'); io.unobserve(e.target);} });
+},{threshold:.15});
+document.querySelectorAll('.card').forEach(function(c,i){ c.style.transitionDelay=(i*80)+'ms'; io.observe(c); });
+
+// lightbox
+const lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img');
+function openBox(src){ lbImg.src = src; lb.classList.add('open'); }
+lb.onclick = function(){ lb.classList.remove('open'); };
+
+// confetti
+const cv = document.getElementById('confetti'), ctx = cv.getContext('2d');
+let W, H, bits = [];
+function size(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
+size(); addEventListener('resize', size);
+const colors = ['#ffd27a','#ff6fa8','#ffffff','#a78bfa','#5eead4','#fb7185'];
+function burst(n){
+  for(let i=0;i<n;i++) bits.push({
+    x:W/2+(Math.random()-.5)*W*.6, y:H*.35, vx:(Math.random()-.5)*10, vy:-Math.random()*12-3,
+    s:Math.random()*8+4, c:colors[(Math.random()*colors.length)|0], r:Math.random()*6, vr:(Math.random()-.5)*.3, life:0
+  });
+}
+(function loop(){
+  ctx.clearRect(0,0,W,H);
+  bits = bits.filter(function(b){ return b.y < H+20; });
+  bits.forEach(function(b){
+    b.vy += .25; b.x += b.vx; b.y += b.vy; b.r += b.vr; b.vx *= .99;
+    ctx.save(); ctx.translate(b.x,b.y); ctx.rotate(b.r); ctx.fillStyle=b.c;
+    ctx.fillRect(-b.s/2,-b.s/4,b.s,b.s/2); ctx.restore();
+  });
+  requestAnimationFrame(loop);
+})();
+function party(){ burst(160); setTimeout(function(){burst(120)},350); setTimeout(function(){burst(120)},700); }
+document.getElementById('party').onclick = party;
+document.getElementById('again').onclick = party;
+setTimeout(party, 600);
+</script>
+</body>
+</html>
