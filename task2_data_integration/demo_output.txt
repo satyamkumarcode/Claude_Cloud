@@ -1,0 +1,104 @@
+
+===== SOURCE acm_source.db =====
+-- acm_venue (2 rows)
+   ('1', 'International Conference on Management of Dat')
+   ('2', 'ACM SIGMOD Record ')
+-- acm_paper (11 rows)
+   ('335484', 'Research issues in moving objects databases (', 'Ouri Wolfson', '1', '2000')
+   ('375669', 'Bit-sliced index arithmetic', "Denis Rinfret, Patrick O'Neil, Elizabeth O'Ne", '1', '2001')
+   ('375672', 'Data bubbles: quality preserving performance ', 'Markus M. Breunig, Hans-Peter Kriegel, Peer K', '1', '2001')
+   ('375678', 'Adaptable query optimization and evaluation i', 'Giedrius Slivinskas, Christian S. Jensen, Ric', '1', '2001')
+
+===== SOURCE dblp_source.db =====
+-- dblp_paper (11 rows)
+   ('conf/sigmod/SlivinskasJS01', 'Adaptable Query Optimization and Evaluation i', 'SIGMOD Conference', '2001')
+   ('conf/sigmod/ChaudhuriDN01', 'A Robust, Optimization-Based Approach for App', 'SIGMOD Conference', '2001')
+   ('conf/sigmod/RinfretOO01', 'Bit-Sliced Index Arithmetic', 'SIGMOD Conference', '2001')
+   ('conf/sigmod/BreunigKKS01', 'Data Bubbles: Quality Preserving Performance ', 'SIGMOD Conference', '2001')
+-- dblp_author (38 rows)
+   ('conf/sigmod/SlivinskasJS01', '1', 'Christian S. Jensen')
+   ('conf/sigmod/SlivinskasJS01', '2', ' Richard T. Snodgrass')
+   ('conf/sigmod/SlivinskasJS01', '3', ' Giedrius Slivinskas')
+   ('conf/sigmod/ChaudhuriDN01', '1', 'Vivek R. Narasayya')
+
+===== WAREHOUSE =====
+
+### ETL log
+SELECT * FROM etl_log
+
+step                 | rows_in | rows_out | note                          
+---------------------+---------+----------+-------------------------------
+extract acm          | 11      | 11       | acm_paper JOIN acm_venue      
+extract dblp         | 11      | 11       | dblp_paper + dblp_author      
+entity resolution    | 22      | 8        | matched pairs                 
+load dim_venue       | 0       | 3        | standardised venue names      
+load dim_author      | 0       | 39       | distinct, trimmed author names
+load dim_paper       | 22      | 14       | duplicates merged             
+load fact_authorship | 0       | 41       |                               
+
+### Q1 Integrated papers (one row per real paper, with provenance)
+SELECT p.paper_sk, substr(p.title,1,45) AS title, p.year, v.venue_name, p.in_dblp, p.in_acm
+            FROM dim_paper p JOIN dim_venue v USING(venue_sk) ORDER BY p.paper_sk
+
+paper_sk | title                                         | year | venue_name        | in_dblp | in_acm
+---------+-----------------------------------------------+------+-------------------+---------+-------
+1        | Adaptable Query Optimization and Evaluation i | 2001 | SIGMOD Conference | 1       | 1     
+2        | A Robust, Optimization-Based Approach for App | 2001 | SIGMOD Conference | 1       | 1     
+3        | Bit-Sliced Index Arithmetic                   | 2001 | SIGMOD Conference | 1       | 1     
+4        | Data Bubbles: Quality Preserving Performance  | 2001 | SIGMOD Conference | 1       | 1     
+5        | Global Optimization of Histograms             | 2001 | SIGMOD Conference | 1       | 1     
+6        | Experiences in Mining Aviation Safety Data    | 2001 | SIGMOD Conference | 1       | 1     
+7        | DyDa: Data Warehouse Maintenance in Fully Con | 2001 | SIGMOD Conference | 1       | 1     
+8        | Epsilon Grid Order: An Algorithm for the Simi | 2001 | SIGMOD Conference | 1       | 1     
+9        | Incremental Maintenance for Non-Distributive  | 2002 | VLDB              | 1       | 0     
+10       | Data Bubbles for Non-Vector Data: Speeding-up | 2003 | VLDB              | 1       | 0     
+11       | Efficient IR-Style Keyword Search over Relati | 2003 | VLDB              | 1       | 0     
+12       | Research issues in moving objects databases ( | 2000 | SIGMOD Conference | 0       | 1     
+13       | An Illustra technical white paper             | 1996 | SIGMOD Record     | 0       | 1     
+14       | Data management issues in electronic commerce | 2002 | SIGMOD Record     | 0       | 1     
+
+### Q2 Papers per standardised venue
+SELECT v.venue_name, COUNT(*) AS papers
+            FROM dim_paper p JOIN dim_venue v USING(venue_sk) GROUP BY v.venue_name ORDER BY papers DESC
+
+venue_name        | papers
+------------------+-------
+SIGMOD Conference | 9     
+VLDB              | 3     
+SIGMOD Record     | 2     
+
+### Q3 Source coverage
+SELECT CASE WHEN in_dblp AND in_acm THEN 'both' WHEN in_dblp THEN 'DBLP only'
+            ELSE 'ACM only' END AS coverage, COUNT(*) AS papers FROM dim_paper GROUP BY 1
+
+coverage  | papers
+----------+-------
+ACM only  | 3     
+DBLP only | 3     
+both      | 8     
+
+### Q4 Most prolific authors
+SELECT a.author_name, COUNT(*) AS papers
+            FROM fact_authorship f JOIN dim_author a USING(author_sk) GROUP BY a.author_sk
+            ORDER BY papers DESC, a.author_name LIMIT 5
+
+author_name        | papers
+-------------------+-------
+Hans-Peter Kriegel | 2     
+Jörg Sander        | 2     
+Andreas Koeller    | 1     
+Asuman Dogac       | 1     
+Beng Chin Ooi      | 1     
+
+### Q5 Authors of papers present in BOTH sources
+SELECT substr(p.title,1,40) AS title,
+            group_concat(a.author_name, '; ') AS authors FROM dim_paper p
+            JOIN fact_authorship f USING(paper_sk) JOIN dim_author a USING(author_sk)
+            WHERE p.in_dblp AND p.in_acm GROUP BY p.paper_sk LIMIT 4
+
+title                                    | authors                                                     
+-----------------------------------------+-------------------------------------------------------------
+Adaptable Query Optimization and Evaluat | Christian S. Jensen; Richard T. Snodgrass; Giedrius Slivinsk
+A Robust, Optimization-Based Approach fo | Vivek R. Narasayya; Gautam Das; Surajit Chaudhuri           
+Bit-Sliced Index Arithmetic              | Elizabeth J. O'Neil; Denis Rinfret; Patrick E. O'Neil       
+Data Bubbles: Quality Preserving Perform | Jörg Sander; Hans-Peter Kriegel; Peer Kröger; Markus M. Breu
